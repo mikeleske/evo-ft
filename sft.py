@@ -26,12 +26,12 @@ python sft.py \
     --logging_steps=10 \
     --eval_steps=50 \
     --evaluation_strategy="steps"\
-    --num_train_epochs=3 \
-    --max_seq_length=280 \
+    --num_train_epochs=1 \
+    --max_seq_length=325 \
     --output_dir="sft_evo_genus" \
     --save_safetensors=False \
-    --save_only_model=True
-
+    --save_only_model=True \
+    --save_steps=20000
     
 python examples/scripts/sft.py \
     --model_name_or_path="facebook/opt-350m" \
@@ -97,6 +97,8 @@ from trl import (
 
 #from utils import parse_fasta_file
 
+import wandb
+wandb.login()
 
 tqdm.pandas()
 
@@ -136,8 +138,8 @@ if __name__ == "__main__":
     )
     tokenizer = AutoTokenizer.from_pretrained(model_config.model_name_or_path, use_fast=True, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.pad_token = "X"
-    tokenizer.eos_token = "X"
+    tokenizer.pad_token = "§"
+    tokenizer.eos_token = "§"
 
     ################
     # Dataset
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     #data_file = './SILVA_138.1_SSURef_tax_silva.fasta'
 
     #domain = 'Bacteria'
-    out_file = '16S_GTDB.csv'
+    out_file = 'data/16S_GTDB_38500.csv'
     #max_seq_length = 500
     #num_records= 2000
 
