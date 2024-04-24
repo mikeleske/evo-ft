@@ -28,9 +28,7 @@ python sft.py \
     --evaluation_strategy="steps"\
     --num_train_epochs=3 \
     --max_seq_length=280 \
-    --output_dir="sft_evo_genus" \
-    --save_safetensors=False \
-    --save_only_model=True
+    --output_dir="sft_evo_genus" 
 
     
 python examples/scripts/sft.py \
