@@ -1,0 +1,7 @@
+stripedhyena==0.2.2
+biopython
+pandas
+accelerate
+datasets
+trl
+peft
