@@ -137,7 +137,6 @@ if __name__ == "__main__":
         bf16=True,
     )
     tokenizer = AutoTokenizer.from_pretrained(model_config.model_name_or_path, use_fast=True, trust_remote_code=True)
-    tokenizer.pad_token = tokenizer.eos_token
     tokenizer.pad_token = "§"
     tokenizer.eos_token = "§"
 
