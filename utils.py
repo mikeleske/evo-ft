@@ -1,6 +1,6 @@
 import pandas as pd
 from Bio import SeqIO
-
+import gzip
 
 
 def parse_fasta_file_silva(file: str, domain: str, out_file: str = None, max_seq_length: int = None, num_records: int = None) -> pd.DataFrame :
