@@ -79,7 +79,7 @@ def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_
     df = pd.DataFrame(rows_list, columns=columns)
 
     if min_seq_length:
-        df = df[df['SeqLen'] >= min_seq_length]
+        df = df[df['SeqLen'] >= min_seq_length].reset_index()
 
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)
@@ -124,7 +124,7 @@ def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min
     df = pd.DataFrame(rows_list, columns=columns)
 
     if min_seq_length:
-        df = df[df['SeqLen'] >= min_seq_length]
+        df = df[df['SeqLen'] >= min_seq_length].reset_index()
 
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)
