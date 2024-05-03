@@ -43,7 +43,7 @@ def parse_fasta_file_silva(file: str, domain: str, out_file: str = None, max_seq
     return df
 
 
-def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, max_seq_length: int = None, V3V4_start: int = None, V3V4_end: int = None, num_records: int = None) -> pd.DataFrame :
+def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_length: int = None, max_seq_length: int = None, V3V4_start: int = None, V3V4_end: int = None, num_records: int = None) -> pd.DataFrame :
     """
         tbd
     """
@@ -78,13 +78,16 @@ def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, max_seq_
     
     df = pd.DataFrame(rows_list, columns=columns)
 
+    if min_seq_length:
+        df = df[df['SeqLen'] >= min_seq_length]
+
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)
 
     return df
 
 
-def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, max_seq_length: int = None, V3V4_start: int = None, V3V4_end: int = None, num_records: int = None) -> pd.DataFrame :
+def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min_seq_length: int = None, max_seq_length: int = None, V3V4_start: int = None, V3V4_end: int = None, num_records: int = None) -> pd.DataFrame :
     """
         tbd
     """
@@ -119,6 +122,9 @@ def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, max
 
     
     df = pd.DataFrame(rows_list, columns=columns)
+
+    if min_seq_length:
+        df = df[df['SeqLen'] >= min_seq_length]
 
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)

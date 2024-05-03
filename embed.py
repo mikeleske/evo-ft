@@ -59,7 +59,7 @@ def vectorize(df: pd.DataFrame, dim: int, embeddings_numpy_file: str = None) -> 
         emb = get_emb(df.loc[i, 'Seq']).reshape(1, dim)
         vectors.append(emb)
 
-        if len(vectors) == 1000:
+        if len(vectors) == 50:
             vectors = np.vstack(vectors)
             try:
                 embeddings = np.load(embeddings_numpy_file)
@@ -108,9 +108,10 @@ data_file = './data/GTDB/bac120_ssu_reps_r220.fna.gz'
 embeddings_numpy_file = 'bac120_ssu_reps_r220-131K.npy'
 domain = 'd__Bacteria'
 out_file = 'r220_16S_bac120.csv'
+min_seq_length = 1400
 max_seq_length = 2000
-#V3V4_start = 400
-#V3V4_end   = 650
+V3V4_start = 341
+V3V4_end   = 785
 VDIM = 4096
 
 num_records = 2000
@@ -119,6 +120,7 @@ df = parse_fasta_file_gtdb_gzip(
     file=data_file,
     domain=domain,
     out_file=out_file,
+    min_seq_length=min_seq_length,
     max_seq_length=max_seq_length,
     #V3V4_start=V3V4_start,
     #V3V4_end=V3V4_end,
