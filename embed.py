@@ -2,6 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig
 import pandas as pd
 import numpy as np
+from Bio.Seq import Seq
 
 from utils import parse_fasta_file_gtdb_gzip
 
@@ -41,6 +42,42 @@ tokenizer.pad_token = "X"
 #
 ###########################
 
+def get_primers(start:str = None, end:str = None, seq = None):
+    f_primer = None
+    r_primer = None
+    rev_seq = Seq(seq).reverse_complement()
+    
+    if start == '341F':
+        primer = 'CCTACGGGNGGCWGCAG'
+
+        for W in ['A', 'T']:
+            for N in ['A', 'C', 'G', 'T']:
+                iter_primer = primer.replace('W',W).replace('N',N)
+                if iter_primer in seq:
+                    f_primer = iter_primer
+                    break
+    
+    if end == '785R':
+        primer = 'GACTACHVGGGTATCTAATCC'
+
+        for H in ['A', 'C', 'T']:
+            for V in ['G', 'C', 'A']:
+                iter_primer = primer.replace('H',H).replace('V',V)
+                if iter_primer in rev_seq:
+                    r_primer = iter_primer
+                    break
+
+    #print(f_primer, r_primer)
+    return (f_primer, r_primer)
+
+def get_region(region:str = None, seq:str = None):
+    if region == 'V3V4':
+        f_primer, r_primer = get_primers(start='341F', end='785R', seq=seq)
+        try:
+            return str(Seq(str(Seq(seq.split(f_primer)[1]).reverse_complement()).split(r_primer)[1]).reverse_complement())
+        except:
+            return str('ACGT')
+        
 def get_emb(seq):
     global features
     features = {}
@@ -110,8 +147,7 @@ domain = 'd__Bacteria'
 out_file = 'r220_16S_bac120.csv'
 min_seq_length = 1400
 max_seq_length = 2000
-V3V4_start = 341
-V3V4_end   = 785
+region = 'V3V4'
 VDIM = 4096
 
 num_records = 2000
@@ -122,10 +158,16 @@ df = parse_fasta_file_gtdb_gzip(
     out_file=out_file,
     min_seq_length=min_seq_length,
     max_seq_length=max_seq_length,
-    #V3V4_start=V3V4_start,
-    #V3V4_end=V3V4_end,
-    num_records=num_records
 )
+
+if region:
+    df['Seq'] = df['Seq'].apply(lambda x: get_region(region=region, seq=x))
+
+print('DataFrame after loading:', df.shape)
+
+df = df[df.Seq != 'ACGT']
+
+print('DataFrame after cleaning V3V4 misalignment:', df.shape)
 
 
 ###########################

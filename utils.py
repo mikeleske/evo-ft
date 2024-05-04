@@ -43,7 +43,7 @@ def parse_fasta_file_silva(file: str, domain: str, out_file: str = None, max_seq
     return df
 
 
-def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_length: int = None, max_seq_length: int = None, V3V4_start: int = None, V3V4_end: int = None, num_records: int = None) -> pd.DataFrame :
+def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_length: int = None, max_seq_length: int = None) -> pd.DataFrame :
     """
         tbd
     """
@@ -68,9 +68,6 @@ def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_
                 if max_seq_length:
                     seq = seq[:max_seq_length]
                 
-                if V3V4_start:
-                    seq = seq[V3V4_start:V3V4_end]
-                
                 dict1 = dict( (col, val) for (col, val) in 
                               zip(columns, [id, taxa, kingdom, phylum, _class, order, family, genus, species, seq_len, seq]))
                 rows_list.append(dict1)
@@ -79,7 +76,7 @@ def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_
     df = pd.DataFrame(rows_list, columns=columns)
 
     if min_seq_length:
-        df = df[df['SeqLen'] >= min_seq_length].reset_index()
+        df = df[df['SeqLen'] >= min_seq_length].reset_index(drop=True)
 
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)
@@ -87,7 +84,7 @@ def parse_fasta_file_gtdb(file: str, domain: str, out_file: str = None, min_seq_
     return df
 
 
-def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min_seq_length: int = None, max_seq_length: int = None, V3V4_start: int = None, V3V4_end: int = None, num_records: int = None) -> pd.DataFrame :
+def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min_seq_length: int = None, max_seq_length: int = None) -> pd.DataFrame :
     """
         tbd
     """
@@ -113,9 +110,6 @@ def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min
                     if max_seq_length:
                         seq = seq[:max_seq_length]
                     
-                    if V3V4_start:
-                        seq = seq[V3V4_start:V3V4_end]
-                    
                     dict1 = dict( (col, val) for (col, val) in 
                                   zip(columns, [id, taxa, kingdom, phylum, _class, order, family, genus, species, seq_len, seq]))
                     rows_list.append(dict1)
@@ -124,7 +118,7 @@ def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min
     df = pd.DataFrame(rows_list, columns=columns)
 
     if min_seq_length:
-        df = df[df['SeqLen'] >= min_seq_length].reset_index()
+        df = df[df['SeqLen'] >= min_seq_length].reset_index(drop=True)
 
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)
