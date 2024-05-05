@@ -144,18 +144,7 @@ if __name__ == "__main__":
     # Dataset
     ################
 
-    #data_file = './SILVA_138.1_SSURef_tax_silva.fasta'
-
-    #domain = 'Bacteria'
     out_file = 'r220_16S_bac120_sft.csv'
-    #max_seq_length = 500
-    #num_records= 2000
-
-    #_ = parse_fasta_file(file=data_file, 
-    #                    domain=domain, 
-    #                    out_file=out_file, 
-    #                    max_seq_length=max_seq_length, 
-    #                    num_records=num_records)
 
     raw_datasets = load_dataset('csv', data_files=out_file).shuffle(seed=42)
     raw_testvalid = raw_datasets['train'].train_test_split(test_size=0.05)
@@ -171,7 +160,7 @@ if __name__ == "__main__":
         output_texts = []
         for i in range(len(example['SeqV3V4'])):
             #text = f"### Seq: {example['Seq'][i]}\n ### Genus: {example['Genus'][i]}"
-            text = f"{example['SeqV3V4'][i]}<G>{example['Genus'][i]}§"
+            text = f"{example['SeqV3V4'][i]}<G>{example['Genus'][i]}|"
             output_texts.append(text)
         return output_texts
 
