@@ -32,7 +32,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-tokenizer.pad_token = "X"
+tokenizer.pad_token = "~"
 
 
 
