@@ -1,5 +1,6 @@
 import pandas as pd
 from Bio import SeqIO
+from Bio.Seq import Seq
 import gzip
 
 
@@ -123,4 +124,50 @@ def parse_fasta_file_gtdb_gzip(file: str, domain: str, out_file: str = None, min
     if out_file:
         df.to_csv(path_or_buf=out_file, sep=',', index=False)
 
+    return df
+
+
+def get_primers(start:str = None, end:str = None, seq = None):
+    f_primer = None
+    r_primer = None
+    rev_seq = Seq(seq).reverse_complement()
+    
+    if start == '341F':
+        primer = 'CCTACGGGNGGCWGCAG'
+
+        for W in ['A', 'T']:
+            for N in ['A', 'C', 'G', 'T']:
+                iter_primer = primer.replace('W',W).replace('N',N)
+                if iter_primer in seq:
+                    f_primer = iter_primer
+                    break
+    
+    if end == '785R':
+        primer = 'GACTACHVGGGTATCTAATCC'
+
+        for H in ['A', 'C', 'T']:
+            for V in ['G', 'C', 'A']:
+                iter_primer = primer.replace('H',H).replace('V',V)
+                if iter_primer in rev_seq:
+                    r_primer = iter_primer
+                    break
+
+    #print(f_primer, r_primer)
+    return (f_primer, r_primer)
+
+
+def get_region(region:str = None, seq:str = None):
+    if region == 'V3V4':
+        f_primer, r_primer = get_primers(start='341F', end='785R', seq=seq)
+        try:
+            return str(Seq(str(Seq(seq.split(f_primer)[1]).reverse_complement()).split(r_primer)[1]).reverse_complement())
+        except:
+            return str('ACGT')
+        
+def get_clean_df(df: pd.DataFrame = None, level: str = None, min_seq_len: int = None):
+    __list = list(df[level].unique())
+    __list_clean = [ level for level in __list if not(level[4].isupper() or '-' in level)]
+    df = df[df[level].isin(__list_clean)]
+    if min_seq_len:
+        df = df[df['SeqLen'] >= min_seq_len]
     return df

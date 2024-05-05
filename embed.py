@@ -165,7 +165,7 @@ if region:
 
 print('DataFrame after loading:', df.shape)
 
-df = df[df.Seq != 'ACGT'].reset_index().drop('index')
+df = df[df.Seq != 'ACGT'].reset_index(drop=True)
 
 print('DataFrame after cleaning V3V4 misalignment:', df.shape)
 

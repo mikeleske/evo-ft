@@ -18,17 +18,17 @@ python sft.py \
     --model_name_or_path='togethercomputer/evo-1-131k-base' \
     --learning_rate=1e-5 \
     --weight_decay=0.01 \
-    --per_device_train_batch_size=8 \
-    --per_device_test_batch_size=32 \
-    --gradient_accumulation_steps=8 \
+    --per_device_train_batch_size=4 \
+    --per_device_test_batch_size=8 \
+    --gradient_accumulation_steps=4 \
     --dataset_train_name="train" \
     --dataset_test_name="test" \
     --logging_steps=10 \
     --eval_steps=50 \
     --evaluation_strategy="steps"\
-    --num_train_epochs=1 \
-    --max_seq_length=325 \
-    --output_dir="sft_evo_genus" \
+    --num_train_epochs=2 \
+    --max_seq_length=500 \
+    --output_dir="sft_evo_genus_131K" \
     --save_safetensors=False \
     --save_only_model=True \
     --save_steps=20000
@@ -97,8 +97,8 @@ from trl import (
 
 #from utils import parse_fasta_file
 
-import wandb
-wandb.login()
+#import wandb
+#wandb.login()
 
 tqdm.pandas()
 
@@ -137,8 +137,8 @@ if __name__ == "__main__":
         bf16=True,
     )
     tokenizer = AutoTokenizer.from_pretrained(model_config.model_name_or_path, use_fast=True, trust_remote_code=True)
-    tokenizer.pad_token = "§"
-    tokenizer.eos_token = "§"
+    tokenizer.pad_token = "|"
+    tokenizer.eos_token = "~"
 
     ################
     # Dataset
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     #data_file = './SILVA_138.1_SSURef_tax_silva.fasta'
 
     #domain = 'Bacteria'
-    out_file = 'data/16S_GTDB_38500.csv'
+    out_file = 'r220_16S_bac120_sft.csv'
     #max_seq_length = 500
     #num_records= 2000
 
@@ -169,12 +169,13 @@ if __name__ == "__main__":
 
     def formatting_prompts_func(example):
         output_texts = []
-        for i in range(len(example['Seq'])):
-            text = f"### Seq: {example['Seq'][i]}\n ### Genus: {example['Genus'][i]}"
+        for i in range(len(example['SeqV3V4'])):
+            #text = f"### Seq: {example['Seq'][i]}\n ### Genus: {example['Genus'][i]}"
+            text = f"{example['SeqV3V4'][i]}<G>{example['Genus'][i]}§"
             output_texts.append(text)
         return output_texts
 
-    response_template = " ### Genus:"
+    response_template = "<G>"
     collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
 
     ################
