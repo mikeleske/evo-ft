@@ -16,8 +16,8 @@ model = StripedHyenaModelForCausalLM.from_pretrained(
 )
 
 tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
-tokenizer.pad_token = "§"
-tokenizer.eos_token = "§"
+tokenizer.pad_token = "|"
+tokenizer.eos_token = "~"
 
 
 def inference(seq):
