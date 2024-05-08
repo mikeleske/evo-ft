@@ -18,9 +18,9 @@ python sft.py \
     --model_name_or_path='togethercomputer/evo-1-131k-base' \
     --learning_rate=1e-5 \
     --weight_decay=0.01 \
-    --per_device_train_batch_size=4 \
-    --per_device_test_batch_size=8 \
-    --gradient_accumulation_steps=4 \
+    --per_device_train_batch_size=1 \
+    --per_device_test_batch_size=1 \
+    --gradient_accumulation_steps=1 \
     --dataset_train_name="train" \
     --dataset_test_name="test" \
     --logging_steps=10 \
@@ -28,7 +28,7 @@ python sft.py \
     --evaluation_strategy="steps"\
     --num_train_epochs=2 \
     --max_seq_length=500 \
-    --output_dir="sft_evo_genus_131K" \
+    --output_dir="sft_evo_genus_131K-full" \
     --save_safetensors=False \
     --save_only_model=True \
     --save_steps=20000
