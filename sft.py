@@ -27,8 +27,8 @@ python sft.py \
     --eval_steps=50 \
     --evaluation_strategy="steps"\
     --num_train_epochs=2 \
-    --max_seq_length=500 \
-    --output_dir="sft_evo_genus_131K-full" \
+    --max_seq_length=1650 \
+    --output_dir="sft_MIMt_genus_131K-full" \
     --save_safetensors=False \
     --save_only_model=True \
     --save_steps=20000
@@ -97,8 +97,8 @@ from trl import (
 
 #from utils import parse_fasta_file
 
-#import wandb
-#wandb.login()
+import wandb
+wandb.login()
 
 tqdm.pandas()
 

@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, AutoModel, BertConfig
 import pandas as pd
 import numpy as np
 from Bio.Seq import Seq
@@ -16,11 +16,12 @@ from tqdm import tqdm
 #
 ###########################
 
-model_name = 'togethercomputer/evo-1-131k-base'
+#model_name = 'togethercomputer/evo-1-131k-base'
 #model_name = 'togethercomputer/evo-1-8k-base'
 #model_name = 'mikeleske/evo-ft-genus-325'
 
-model_config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+
+'''model_config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
 model_config.use_cache = False
 
 model = AutoModelForCausalLM.from_pretrained(
@@ -33,8 +34,12 @@ model = AutoModelForCausalLM.from_pretrained(
 
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = "~"
+'''
 
-
+model_name = 'zhihan1996/DNABERT-S'
+config = BertConfig.from_pretrained("zhihan1996/DNABERT-2-117M")
+tokenizer = AutoTokenizer.from_pretrained("zhihan1996/DNABERT-S", trust_remote_code=True)
+model = AutoModel.from_pretrained("zhihan1996/DNABERT-S", config=config, trust_remote_code=True, device_map={"":0})
 
 ###########################
 #
@@ -78,7 +83,7 @@ def get_region(region:str = None, seq:str = None):
         except:
             return str('ACGT')
         
-def get_emb(seq):
+def get_emb_evo(seq):
     global features
     features = {}
 
@@ -87,13 +92,21 @@ def get_emb(seq):
 
     return features['feats'].float().numpy(force=True)[0][-1]
 
+def get_emb_dnaberts(seq):
+    inputs = tokenizer(seq, return_tensors = 'pt')["input_ids"].to("cuda")
+    hidden_states = model(inputs)[0] # [1, sequence_length, 768]
+    
+    # embedding with mean pooling
+    embedding_mean = torch.mean(hidden_states[0], dim=0)
+    return embedding_mean
+
 
 def vectorize(df: pd.DataFrame, dim: int, embeddings_numpy_file: str = None) -> None:
     vectors = list()
     embeddings = None
 
     for i in tqdm(range(df.shape[0])):
-        emb = get_emb(df.loc[i, 'Seq']).reshape(1, dim)
+        emb = get_emb_dnaberts(df.loc[i, 'Seq']).reshape(1, dim)
         vectors.append(emb)
 
         if len(vectors) == 50:

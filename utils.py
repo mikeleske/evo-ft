@@ -142,7 +142,7 @@ def parse_fasta_file_mimt_gzip(file: str, domain: str, out_file: str = None, min
                 description = str(rec.description)
                 id, taxa = description.split('\t')
 
-                taxa = taxa.replace('K__', '').replace('P__', '').replace('C__', '').replace('O__', '').replace('F__', '').replace('G__', '').replace('S__', '')
+                taxa = taxa.replace('K__', '').replace(' P__', '').replace(' C__', '').replace(' O__', '').replace(' F__', '').replace(' G__', '').replace(' S__', '')
                 kingdom, phylum, _class, order, family, genus, species, _ = [level for level in taxa.split(';')]
 
                 seq, seq_len = str(rec.seq), len(str(rec.seq))
