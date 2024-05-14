@@ -16,12 +16,12 @@ from tqdm import tqdm
 #
 ###########################
 
-#model_name = 'togethercomputer/evo-1-131k-base'
+model_name = 'togethercomputer/evo-1-131k-base'
 #model_name = 'togethercomputer/evo-1-8k-base'
 #model_name = 'mikeleske/evo-ft-genus-325'
 
 
-'''model_config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+model_config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
 model_config.use_cache = False
 
 model = AutoModelForCausalLM.from_pretrained(
@@ -34,12 +34,12 @@ model = AutoModelForCausalLM.from_pretrained(
 
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = "~"
-'''
 
-model_name = 'zhihan1996/DNABERT-S'
-config = BertConfig.from_pretrained("zhihan1996/DNABERT-2-117M")
-tokenizer = AutoTokenizer.from_pretrained("zhihan1996/DNABERT-S", trust_remote_code=True)
-model = AutoModel.from_pretrained("zhihan1996/DNABERT-S", config=config, trust_remote_code=True, device_map={"":0})
+
+#model_name = 'zhihan1996/DNABERT-S'
+#config = BertConfig.from_pretrained("zhihan1996/DNABERT-2-117M")
+#tokenizer = AutoTokenizer.from_pretrained("zhihan1996/DNABERT-S", trust_remote_code=True)
+#model = AutoModel.from_pretrained("zhihan1996/DNABERT-S", config=config, trust_remote_code=True, device_map={"":0})
 
 ###########################
 #
@@ -89,15 +89,17 @@ def get_emb_evo(seq):
 
     inputs = tokenizer(seq, return_tensors="pt").input_ids.to("cuda")
     outputs = model(inputs)
+    hidden_states = features['feats'] #.float().numpy(force=True)[0][-1]
 
-    return features['feats'].float().numpy(force=True)[0][-1]
+    embedding_mean = torch.mean(hidden_states[0], dim=0).cpu()
+    return embedding_mean
 
 def get_emb_dnaberts(seq):
     inputs = tokenizer(seq, return_tensors = 'pt')["input_ids"].to("cuda")
     hidden_states = model(inputs)[0] # [1, sequence_length, 768]
     
     # embedding with mean pooling
-    embedding_mean = torch.mean(hidden_states[0], dim=0)
+    embedding_mean = torch.mean(hidden_states[0], dim=0).cpu()
     return embedding_mean
 
 
