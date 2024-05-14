@@ -82,14 +82,14 @@ def get_region(region:str = None, seq:str = None):
             return str(Seq(str(Seq(seq.split(f_primer)[1]).reverse_complement()).split(r_primer)[1]).reverse_complement())
         except:
             return str('ACGT')
-        
+
 def get_emb_evo(seq):
     global features
     features = {}
 
     inputs = tokenizer(seq, return_tensors="pt").input_ids.to("cuda")
-    outputs = model(inputs)
-    hidden_states = features['feats'] #.float().numpy(force=True)[0][-1]
+    _ = model(inputs)
+    hidden_states = features['feats'].float() #.numpy(force=True)[0][-1]
 
     embedding_mean = torch.mean(hidden_states[0], dim=0).cpu()
     return embedding_mean
@@ -103,13 +103,14 @@ def get_emb_dnaberts(seq):
     return embedding_mean
 
 
-def vectorize(df: pd.DataFrame, dim: int, embeddings_numpy_file: str = None) -> None:
+
+def vectorize(df: pd.DataFrame, column: str = 'Seq', embeddings_numpy_file: str = None) -> None:
     vectors = list()
     embeddings = None
 
     for i in tqdm(range(df.shape[0])):
-        emb = get_emb_dnaberts(df.loc[i, 'Seq']).reshape(1, dim)
-        vectors.append(emb)
+        emb = get_emb_evo(df.loc[i, column])
+        vectors.append(emb.reshape(1, emb.shape[0]))
 
         if len(vectors) == 50:
             vectors = np.vstack(vectors)
@@ -131,6 +132,7 @@ def vectorize(df: pd.DataFrame, dim: int, embeddings_numpy_file: str = None) -> 
     embeddings = np.load(embeddings_numpy_file)
     vectors = np.vstack(vectors)
     embeddings = np.concatenate((embeddings, vectors), axis=0)
+    #np.save(embeddings_numpy_file, embeddings)
     print(embeddings.shape)
 
     return embeddings
@@ -156,16 +158,16 @@ model.backbone.blocks[-1].mlp.l3.register_forward_hook(get_features("feats"))
 #
 ###########################
 
-data_file = './data/GTDB/bac120_ssu_reps_r220.fna.gz'
-embeddings_numpy_file = 'bac120_ssu_reps_r220-131K.npy'
-domain = 'd__Bacteria'
-out_file = 'r220_16S_bac120.csv'
+data_file = './data/MIMT/MIMt-16S_M2c_24_4.fna.gz'
+embeddings_numpy_file = 'MIMt_24_4-Evo131K-all-16S-V3V4.npy'
+domain = 'K__Bacteria'
+out_file = 'MIMt_24_4-Evo131K-all-16S-V3V4.csv'
+
 min_seq_length = 1400
 max_seq_length = 2000
 region = 'V3V4'
-VDIM = 4096
-
-num_records = 2000
+column2emb = 'SeqV3V4'
+#VDIM = 4096
 
 df = parse_fasta_file_gtdb_gzip(
     file=data_file,
@@ -177,11 +179,9 @@ df = parse_fasta_file_gtdb_gzip(
 
 if region:
     df['Seq'] = df['Seq'].apply(lambda x: get_region(region=region, seq=x))
+    print('DataFrame after region processing:', df.shape)
 
-print('DataFrame after loading:', df.shape)
-
-df = df[df.Seq != 'ACGT'].reset_index(drop=True)
-
+df = df[df['V3V4'] != 'ACGT'].reset_index(drop=True)
 print('DataFrame after cleaning V3V4 misalignment:', df.shape)
 
 
@@ -191,5 +191,5 @@ print('DataFrame after cleaning V3V4 misalignment:', df.shape)
 #
 ###########################
 
-_ = vectorize(df, VDIM, embeddings_numpy_file)
+_ = vectorize(df=df, column=column2emb, embeddings_numpy_file=embeddings_numpy_file)
 #np.save(embeddings_numpy_file, embeddings)
