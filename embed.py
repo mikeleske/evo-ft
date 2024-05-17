@@ -34,6 +34,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = "~"
+tokenizer.eos_token = "|"
 
 
 #model_name = 'zhihan1996/DNABERT-S'

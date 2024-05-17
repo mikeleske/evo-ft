@@ -18,17 +18,17 @@ python sft.py \
     --model_name_or_path='togethercomputer/evo-1-131k-base' \
     --learning_rate=1e-5 \
     --weight_decay=0.01 \
-    --per_device_train_batch_size=1 \
-    --per_device_test_batch_size=1 \
-    --gradient_accumulation_steps=1 \
+    --per_device_train_batch_size=4 \
+    --per_device_test_batch_size=8 \
+    --gradient_accumulation_steps=4 \
     --dataset_train_name="train" \
     --dataset_test_name="test" \
     --logging_steps=10 \
-    --eval_steps=50 \
+    --eval_steps=100 \
     --evaluation_strategy="steps"\
-    --num_train_epochs=2 \
+    --num_train_epochs=5 \
     --max_seq_length=1650 \
-    --output_dir="sft_MIMt_genus_131K-full" \
+    --output_dir="sft_MIMt_genus_131K-full-top50G-50-V3V4" \
     --save_safetensors=False \
     --save_only_model=True \
     --save_steps=20000
@@ -137,8 +137,8 @@ if __name__ == "__main__":
         bf16=True,
     )
     tokenizer = AutoTokenizer.from_pretrained(model_config.model_name_or_path, use_fast=True, trust_remote_code=True)
-    tokenizer.pad_token = "|"
-    tokenizer.eos_token = "~"
+    tokenizer.pad_token = "~"
+    tokenizer.eos_token = "|"
 
     ################
     # Dataset
