@@ -16,19 +16,19 @@
 # regular:
 python sft.py \
     --model_name_or_path='togethercomputer/evo-1-131k-base' \
-    --learning_rate=1e-5 \
+    --learning_rate=1e-4 \
     --weight_decay=0.01 \
     --per_device_train_batch_size=4 \
     --per_device_test_batch_size=8 \
     --gradient_accumulation_steps=4 \
     --dataset_train_name="train" \
     --dataset_test_name="test" \
-    --logging_steps=10 \
+    --logging_steps=5 \
     --eval_steps=100 \
     --evaluation_strategy="steps"\
-    --num_train_epochs=5 \
-    --max_seq_length=1650 \
-    --output_dir="sft_MIMt_genus_131K-full-top50G-50-V3V4" \
+    --num_train_epochs=10 \
+    --max_seq_length=550 \
+    --output_dir="sft_MIMt_genus_131K-full-top50G-50-V3V4-peft-PT-128" \
     --save_safetensors=False \
     --save_only_model=True \
     --save_steps=20000
@@ -83,7 +83,7 @@ import torch
 from datasets import load_dataset
 
 from tqdm.rich import tqdm
-from transformers import AutoTokenizer, TrainingArguments
+from transformers import AutoTokenizer, TrainingArguments, AutoModelForCausalLM, AutoConfig
 
 from trl import (
     ModelConfig,
@@ -94,6 +94,9 @@ from trl import (
     get_quantization_config,
     get_kbit_device_map,
 )
+
+from peft import PromptTuningInit, PromptTuningConfig, TaskType, PeftType, get_peft_model
+
 
 #from utils import parse_fasta_file
 
@@ -140,6 +143,26 @@ if __name__ == "__main__":
     tokenizer.pad_token = "~"
     tokenizer.eos_token = "|"
 
+    model_name = 'togethercomputer/evo-1-131k-base'
+
+    model_config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+    model_config.use_cache = False
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        config=model_config,
+        trust_remote_code=True,
+        device_map={"":0},
+        torch_dtype=torch.float16
+    )
+
+    # freeze most parameters
+    for p in model.parameters():
+        p.requires_grad = False
+
+    for p in model.backbone.blocks[-1].mlp.parameters():
+        p.requires_grad = True
+
     ################
     # Dataset
     ################
@@ -177,12 +200,25 @@ if __name__ == "__main__":
         else console.status(f"[bold green]Training completed! Saving the model to {training_args.output_dir}")
     )
 
+
+    peft_config = PromptTuningConfig(
+        task_type=TaskType.CAUSAL_LM,
+        num_virtual_tokens=128,
+        tokenizer_name_or_path='togethercomputer/evo-1-131k-base'
+    )
+    peft_model = get_peft_model(model, peft_config)
+    peft_model.print_trainable_parameters()
+
+    # TypeError: forward() got an unexpected keyword argument 'inputs_embeds'
+
+
     ################
     # Training
     ################
     with init_context:
         trainer = SFTTrainer(
-            model=model_config.model_name_or_path,
+            model=peft_model,
+            #model=model_config.model_name_or_path,
             model_init_kwargs=model_kwargs,
             args=training_args,
             formatting_func=formatting_prompts_func,

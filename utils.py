@@ -166,7 +166,6 @@ def parse_fasta_file_mimt_gzip(file: str, domain: str, out_file: str = None, min
     return df
 
 
-
 def get_primers(start:str = None, end:str = None, seq = None):
     f_primer = None
     r_primer = None
@@ -192,7 +191,6 @@ def get_primers(start:str = None, end:str = None, seq = None):
                     r_primer = iter_primer
                     break
 
-    #print(f_primer, r_primer)
     return (f_primer, r_primer)
 
 
