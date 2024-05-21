@@ -59,6 +59,7 @@ def vectorize(model, tokenizer, df: pd.DataFrame, column: str = 'Seq', embedding
                 print(embeddings.shape)
             else:
                 np.save(embeddings_numpy_file, vectors)
+                print(embeddings.shape)
 
             vectors = list()
 
