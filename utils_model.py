@@ -46,7 +46,7 @@ def load_evo_from_local(model_name, local_path):
     return model, tokenizer
 
 
-def load_dnabers_from_hf(model_name):
+def load_dnaberts_from_hf(model_name):
     config = BertConfig.from_pretrained("zhihan1996/DNABERT-2-117M")
     tokenizer = AutoTokenizer.from_pretrained(
         model_name, 

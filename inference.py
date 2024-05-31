@@ -99,6 +99,11 @@ def main() -> None:
 
     results(results)
 
+def infer_single_seq(seq):
+    model, tokenizer = load_model_and_tokenier()
+    pred  = inference(model, tokenizer, seq).split(cfg.PROMPT_SEP)[1].split('|')[0]
+    print(pred)
+
 # --------------------------------------------------
 if __name__ == '__main__':
     main()

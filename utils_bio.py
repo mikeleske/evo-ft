@@ -32,9 +32,17 @@ primers_regex = {
 }
 
 def get_primers(start:str = None, end:str = None, seq = None):
+    f_primer = None
+    r_primer = None
     rev_seq = str(Seq(seq).reverse_complement())
-    f_primer = re.findall(primers_regex[start], seq)[0]
-    r_primer = re.findall(primers_regex[end], rev_seq)[0]
+    try:
+        f_primer = re.findall(primers_regex[start], seq)[0]
+    except:
+        pass
+    try:
+        r_primer = re.findall(primers_regex[end], rev_seq)[0]
+    except:
+        pass
     return (f_primer, r_primer)
 
 def get_primers_bak(start:str = None, end:str = None, seq = None):
@@ -79,6 +87,8 @@ def get_region(region:str = None, seq:str = None):
         f_primer, r_primer = get_primers(start='939F', end='1378R', seq=seq)
     elif region == 'V7V9':
         f_primer, r_primer = get_primers(start='1115F', end='1492R', seq=seq)
+
+    print(f_primer, r_primer)
 
     try:
         return str(Seq(str(Seq(seq.split(f_primer)[1]).reverse_complement()).split(r_primer)[1]).reverse_complement())
