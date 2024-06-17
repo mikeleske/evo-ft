@@ -102,12 +102,13 @@ def main() -> None:
         domain=cfg.DOMAIN,
     )
 
-    for region in cfg.REGIONS:
-        df[region] = df['Seq'].apply(lambda x: get_region(region=region, seq=x))
-        print('DataFrame after region processing:', df.shape)
+    if cfg.REGIONS:
+        for region in cfg.REGIONS:
+            df[region] = df['Seq'].apply(lambda x: get_region(region=region, seq=x))
+            print('DataFrame after region processing:', df.shape)
 
-        #df = df[df[region] != 'ACGT'].reset_index(drop=True)
-        #print('DataFrame after cleaning V3V4 misalignment:', df.shape)
+            #df = df[df[region] != 'ACGT'].reset_index(drop=True)
+            #print('DataFrame after cleaning V3V4 misalignment:', df.shape)
 
     if cfg.REGIONS == None:
         vectorize(model=model, tokenizer=tokenizer, df=df, column='Seq', embeddings_numpy_file=cfg.EMB_FILE)

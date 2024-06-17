@@ -88,8 +88,6 @@ def get_region(region:str = None, seq:str = None):
     elif region == 'V7V9':
         f_primer, r_primer = get_primers(start='1115F', end='1492R', seq=seq)
 
-    print(f_primer, r_primer)
-
     try:
         return str(Seq(str(Seq(seq.split(f_primer)[1]).reverse_complement()).split(r_primer)[1]).reverse_complement())
     except:

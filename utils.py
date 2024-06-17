@@ -200,7 +200,29 @@ def parse_fasta_file_mimt_gzip(file: str, domain: str, out_file: str = None, min
 
     return df
 
-        
+
+def parse_fasta_file_itgdb_taxa_fasta(fasta_file: str) -> pd.DataFrame :
+    """
+        tbd
+    """
+
+    rows_list = []
+    columns = ['ID','SeqLen','Seq']
+
+    for rec in SeqIO.parse(fasta_file, "fasta"):
+
+        id = str(rec.description)
+        seq, seq_len = str(rec.seq), len(str(rec.seq))
+
+        dict1 = dict( (col, val) for (col, val) in 
+                        zip(columns, [id, seq_len, seq]))
+        rows_list.append(dict1)
+
+    df = pd.DataFrame(rows_list, columns=columns)
+
+    return df
+
+
 def get_clean_df(df: pd.DataFrame = None, level: str = None, min_seq_len: int = None):
     __list = list(df[level].unique())
     __list_clean = [ level for level in __list if not(level[4].isupper() or '-' in level)]
